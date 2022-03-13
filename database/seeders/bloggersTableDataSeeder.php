@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Blogger;
+use App\Models\User;
+use Illuminate\Support\Str;
 
 class bloggersTableDataSeeder extends Seeder
 {
@@ -16,8 +18,8 @@ class bloggersTableDataSeeder extends Seeder
     {
         for ($i=0; $i < 15; $i++) { 
 	    	Blogger::create([
-	            'name' => str_random(8),
-	            'email' => str_random(12).'@mail.com',
+	            'name' => str::random(8),
+	            'email' => str::random(12).'@mail.com',
 	            'password' => bcrypt('password')
 	        ]);
     	}

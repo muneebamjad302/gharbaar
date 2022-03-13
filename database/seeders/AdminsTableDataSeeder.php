@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Admin;
+use Illuminate\Support\Str;
 
 class AdminsTableDataSeeder extends Seeder
 {
@@ -16,8 +17,8 @@ class AdminsTableDataSeeder extends Seeder
     {
         for ($i=0; $i < 15; $i++) { 
 	    	Admin::create([
-	            'name' => str_random(8),
-	            'email' => str_random(12).'@mail.com',
+	            'name' => str::random(8),
+	            'email' => str::random(12).'@mail.com',
 	            'password' => bcrypt('password')
 	        ]);
     	}

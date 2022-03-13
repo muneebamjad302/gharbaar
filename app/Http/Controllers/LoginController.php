@@ -20,19 +20,20 @@ class LoginController extends Controller
         $admins =Admin::all();
         $users = User::all();
         $bloggers = Blogger::all();
+        // return response()->json([
+        //     'admins' => $admins,
+        //     'users' => $users,
+        //     'bloggers' => $bloggers,
+        // ], 200);
         return view('dashboard',compact('admins','users','bloggers'));
     }
 
     public function userLogin(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
-
-        if($validator->fails()){
-            return response()->json(['error' => $validator->errors()->all()]);
-        }
 
         if(auth()->guard('user')->attempt(['email' => request('email'), 'password' => request('password')])){
 
@@ -53,40 +54,67 @@ class LoginController extends Controller
         }
     }
 
-    public function adminLogin(Request $request)
+    public function login(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'email' => 'required|email',
             'password' => 'required',
+            'type' => 'required',
         ]);
 
-        if($validator->fails()){
-            return response()->json(['error' => $validator->errors()->all()]);
+        if($request->type == 'admin'){
+            if(auth()->guard('admin')->attempt(['email' => request('email'), 'password' => request('password')])){
+
+                config(['auth.guards.api.provider' => 'admin']);
+                
+                $admin = Admin::select('admins.*')->find(auth()->guard('admin')->user()->id);
+                $token =  $admin->createToken('MyApp',['admin'])->accessToken; 
+                return response()->json($token, 200);
+    
+            }
+            else{ 
+                return response()->json(['error' => ['Email and Password are Wrong.']], 200);
+            }
         }
+        elseif($request->type == 'user'){
+            if(auth()->guard('user')->attempt(['email' => request('email'), 'password' => request('password')])){
 
-        if(auth()->guard('admin')->attempt(['email' => request('email'), 'password' => request('password')])){
+                config(['auth.guards.api.provider' => 'user']);
+                
+                $user = User::find(auth()->guard('user')->user()->id);
+    
+                $token = $user->createToken('MyApp',['user'])->accessToken; 
+                return response()->json($token, 200);
+    
+                // return response()->json($success, 200);
+            }else{ 
+                return response()->json(['error' => ['Email and Password are Wrong.']], 200);
+            }
+        }
+        elseif($request->type == 'blogger'){
+            if(auth()->guard('blogger')->attempt(['email' => request('email'), 'password' => request('password')])){
 
-            config(['auth.guards.api.provider' => 'admin']);
-            
-            $admin = Admin::select('admins.*')->find(auth()->guard('admin')->user()->id);
-            $token =  $admin->createToken('MyApp',['admin'])->accessToken; 
-            session(['token' => $token]);
-            return redirect('api/dashboard');
-        }else{ 
+                config(['auth.guards.api.provider' => 'blogger']);
+                
+                $blogger = Blogger::find(auth()->guard('blogger')->user()->id);
+                $token =  $blogger->createToken('MyApp',['blogger'])->accessToken; 
+                return response()->json($token, 200);
+    
+            }else{ 
+                return response()->json(['error' => ['Email and Password are Wrong.']], 200);
+            }
+        }
+        else{
             return response()->json(['error' => ['Email and Password are Wrong.']], 200);
         }
     }
 
     public function bloggerLogin(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
-
-        if($validator->fails()){
-            return response()->json(['error' => $validator->errors()->all()]);
-        }
 
         if(auth()->guard('blogger')->attempt(['email' => request('email'), 'password' => request('password')])){
 
@@ -111,7 +139,7 @@ class LoginController extends Controller
                 ->where('user_id', $user_id )
                 ->where('scopes', '["user"]')
                 ->delete();
-        Session::forget('token');
+        auth()->guard('user')->logout();
         return response()->json([
             'successd'=>true,
             'message'=>'loggged Out Successfully'
@@ -125,7 +153,7 @@ class LoginController extends Controller
                 ->where('user_id', $user_id )
                 ->where('scopes', '["admin"]')
                 ->delete();
-        Session::forget('token');
+        auth()->guard('admin')->logout();
         return response()->json([
             'successd'=>true,
             'message'=>'loggged Out Successfully'
@@ -139,7 +167,7 @@ class LoginController extends Controller
                 ->where('user_id', $user_id )
                 ->where('scopes', '["blogger"]')
                 ->delete();
-        Session::forget('token');
+        auth()->guard('blogger')->logout();
         return response()->json([
             'successd'=>true,
             'message'=>'loggged Out Successfully'

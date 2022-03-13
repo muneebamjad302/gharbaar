@@ -4,7 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\Blogger;
 use Illuminate\Http\Request;
+use Hash;
+use Validator;
+use Auth;
+
 
 class AdminController extends Controller
 {
@@ -36,7 +41,30 @@ class AdminController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        $request->validate([
+            'name'=>'required',
+            'email'=>'required',
+        ]);
+        if(auth()->guard('admin')->user() && !auth()->guard('admin')->user()->is_super)
+        {
+            $blogger = new Blogger;
+            $blogger->name      = $request->name;
+            $blogger->email     = $request->email;
+            $blogger->password  = Hash::make('password');
+            $blogger->save();
+            return response()->json([
+                'successd'=>true,
+                'message'=>'Blogger Added Successfully'
+            ]);
+        }
+        else{
+            return response()->json([
+                'successd'=>false,
+                'message'=>'Unauthenticated'
+            ]);
+        }
+        
     }
 
     /**
@@ -68,9 +96,26 @@ class AdminController extends Controller
      * @param  \App\Models\Admin  $admin
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Admin $admin)
+    public function update(Request $request, Blogger $blogger)
     {
-        //
+        $request->validate([
+            'name'=>'required',
+        ]);
+        if(auth()->guard('admin')->user() && !auth()->guard('admin')->user()->is_super)
+        {
+            $blogger->name = $request->name;
+            $blogger->save();
+            return response()->json([
+                'successd'=>true,
+                'message'=>'Blogger updated Successfully'
+            ]);
+        }
+        else{
+            return response()->json([
+                'successd'=>false,
+                'message'=>'Unauthenticated'
+            ]);
+        }
     }
 
     /**
@@ -79,8 +124,21 @@ class AdminController extends Controller
      * @param  \App\Models\Admin  $admin
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Admin $admin)
+    public function destroy(Blogger $blogger)
     {
-        //
+        if(auth()->guard('admin')->user() && !auth()->guard('admin')->user()->is_super)
+        {
+            $blogger->delete();
+            return response()->json([
+                'successd'=>true,
+                'message'=>'User deleted Successfully'
+            ]);
+        }
+        else{
+            return response()->json([
+                'successd'=>false,
+                'message'=>'Unauthenticated'
+            ]);
+        }
     }
 }

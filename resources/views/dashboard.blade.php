@@ -4,63 +4,71 @@
 
 {{-- {{session('token') }} --}}
 {{-- {{auth()->guard('admin')->user()}} --}}
+@php $check_for_admin=0; @endphp
 @if (auth()->guard('admin')->user() && auth()->guard('admin')->user()->is_super)
-<center><h1>All User</h1></center>
-<div class="mb-3 float-end">
-    <button class="btn btn-primary btn-flat add-btn" data-toggle="modal" data-target="#modal-lg">Add New User</button>
-    <form action="post" class="admin-logout">
-        <button  class="btn btn-danger btn-flat float-right" type="submit" >logout</button>
-    </form>
-</div>
 
-<div >
-    <table class="table" id="users_div">
-        <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Name</th>
-            <th scope="col">Email</th>
-            <th scope="col">Created_at</th>
-            <th scope="col">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-            @foreach ($users as $user)
-                <tr>
-                    <th scope="row">{{$user->id}}</th>
-                    <td>{{$user->name}}</td>
-                    <td>{{$user->email}}</td>
-                    <td>{{$user->created_at}}</td>
-                    <td> 
-                        <div class="btn-toolbar" role="toolbar">
-                            <div class="btn-group" role="group">
-
-                            <button class="btn btn-success edit-btn" data-toggle="modal" data-target="#modal-lg" data-id="{{$user->id}}" user-name="{{$user->name}}" user-email="{{$user->email}}">Edit</button>
-                              <form action="{{asset('/user/'.$user->id)}}" method="POST" id="delete_item" onsubmit='deleteItem({{$user->id}})'>
-                                @csrf
-                                <button type="submit" class="btn btn-danger">Delete</button>
-                              </form>
-
-                                {{-- <a href="{{asset('/user/'.$user->id.'/edit')}}" class="btn btn-primary"> Edit </a>
-                                <form action="{{asset('/user/'.$user->id)}}" method="post">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="btn btn-danger"> Delete </a>
-                                </form> --}}
+<div class="admin_data" class>
+    <center><h1>All User</h1></center>
+    <div class="mb-3 float-end">
+        <button class="btn btn-primary btn-flat add-btn" data-toggle="modal" data-target="#modal-lg">Add New User</button>
+        <form action="post" class="admin-logout">
+            <button  class="btn btn-danger btn-flat float-right" type="submit" >logout</button>
+        </form>
+    </div>
     
+    <div>
+        <table class="table" id="users_div">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Created_at</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+                @foreach ($users as $user)
+                    <tr>
+                        <th scope="row">{{$user->id}}</th>
+                        <td>{{$user->name}}</td>
+                        <td>{{$user->email}}</td>
+                        <td>{{$user->created_at}}</td>
+                        <td> 
+                            <div class="btn-toolbar" role="toolbar">
+                                <div class="btn-group" role="group">
+    
+                                <button class="btn btn-success edit-btn" data-toggle="modal" data-target="#modal-lg" data-id="{{$user->id}}" user-name="{{$user->name}}" user-email="{{$user->email}}">Edit</button>
+                                  <form action="{{asset('/user/'.$user->id)}}" method="POST" id="delete_item" onsubmit='deleteItem({{$user->id}})'>
+                                    @csrf
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                  </form>
+    
+                                    {{-- <a href="{{asset('/user/'.$user->id.'/edit')}}" class="btn btn-primary"> Edit </a>
+                                    <form action="{{asset('/user/'.$user->id)}}" method="post">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="btn btn-danger"> Delete </a>
+                                    </form> --}}
+        
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                   
-                </tr>   
-            @endforeach
-        </tbody>
-    </table>
+                        </td>
+                    </tr>   
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    
+        
 </div>
 
-    
  
-@elseif(auth()->guard('admin')->user() || auth()->guard('user')->user())
-<center><h1>All Bloggers</h1></center>
+
+@elseif(( $check_for_admin = auth()->guard('admin')->user() && !auth()->guard('admin')->user()->is_super) ||  auth()->guard('user')->user())
+
+<div class="users_data">
+
+    <center><h1>All Bloggers</h1></center>
     <div class="mb-3 float-end">
         <button class="btn btn-primary btn-flat add-btn" data-toggle="modal" data-target="#blogger-modal-lg">Add New Blogger</button>
         @if(auth()->guard('admin')->user())
@@ -111,44 +119,47 @@
         </table>
     </div>
 
+</div>
+
 @elseif(auth()->guard('blogger')->user())
 
-<center><h1>Add blog</h1></center>
-<div class="mb-3 float-end">
-    <form action="post" class="blogger-logout">
-        <button  class="btn btn-danger btn-flat float-right" type="submit" >logout</button>
-    </form>
-<div class="div">
-    <form  id="blog">
-        <div class="form-group">
-            <label for="title">Title</label>
-            <textarea class="form-control" id="blog_title" name="blog_title" rows="2"></textarea>
-        </div>
+<div class="bloggers_data">
 
-        <div class="form-group">
-          <label for="description">Description</label>
-          <textarea class="form-control" id="blog_description" name="blog_description" rows="5"></textarea>
-        </div>
-
-        <div class="row">
-            <div class="col-sm-4">
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary btn-flat btn-block">Save</button>
+    <center><h1>Add blog</h1></center>
+    <div class="mb-3 float-end">
+        <form action="post" class="blogger-logout">
+            <button  class="btn btn-danger btn-flat float-right" type="submit" >logout</button>
+        </form>
+    <div class="div">
+        <form  id="blog">
+            <div class="form-group">
+                <label for="title">Title</label>
+                <textarea class="form-control" id="blog_title" name="blog_title" rows="2"></textarea>
+            </div>
+    
+            <div class="form-group">
+              <label for="description">Description</label>
+              <textarea class="form-control" id="blog_description" name="blog_description" rows="5"></textarea>
+            </div>
+    
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-flat btn-block">Save</button>
+                    </div>
                 </div>
             </div>
-        </div>
-
-      </form>
+    
+          </form>
+    </div>
 </div>
 
 @else
 
-<div class="mb-3 ">
+<div class="mb-3 login_data">
     <span>you are not logged in </span><br>
-    <a href="/" >click here to login as user</a> <br>
-    <a href="/admin/login" >click here to login as user</a><br>
-    <a href="/blogger/login" >click here to login as user</a>
-
+    <a href="/" >click here to login </a> <br>
+  
 </div>
 
 @endif
@@ -254,10 +265,11 @@ $(document).ready( function () {
     $('#users_div').DataTable();
     $('#bloggers_div').DataTable();
     $('#blog_description').summernote();
+    var auth_token=localStorage.getItem("auth_token");
     $.ajaxSetup({
         headers: { 
             Accept: 'application/json',
-            Authorization: `Bearer {{session('token')}}`
+            Authorization:'Bearer '+ auth_token
         }
     });
 
@@ -278,10 +290,15 @@ $(document).ready( function () {
         $('.user-logout').submit(function(e) {
             e.preventDefault()
             $.ajax({
-               url:'/api/user/logout', method:"POST", data:{}
+               url:'/api/user/logout', method:"POST",
+               headers:{
+                Accept: 'application/json',
+                Authorization:'Bearer '+ auth_token
+               }
             //    dataType:'JSON', contentType: false, cache: false, processData: false,
               })
               .done(function(resp) {
+                localStorage.removeItem('auth_token');
                 $.confirm({
                     title: 'Caution!',
                     type:   'green',
@@ -321,13 +338,14 @@ $(document).ready( function () {
             //    dataType:'JSON', contentType: false, cache: false, processData: false,
               })
               .done(function(resp) {
+                localStorage.removeItem('auth_token');
                 $.confirm({
                     title: 'Caution!',
                     type:   'green',
                     content: resp.message,
                     buttons: {
                         Ok: function () {
-                            window.location.href = "/admin/login";
+                            window.location.href = "/";
                         },   
                     }
                 });
@@ -360,13 +378,14 @@ $(document).ready( function () {
             //    dataType:'JSON', contentType: false, cache: false, processData: false,
               })
               .done(function(resp) {
+                localStorage.removeItem('auth_token');
                 $.confirm({
                     title: 'Caution!',
                     type:   'green',
                     content: resp.message,
                     buttons: {
                         Ok: function () {
-                            window.location.href = "/blogger/login";
+                            window.location.href = "/";
                         },   
                     }
                 });
@@ -507,7 +526,7 @@ function deleteItem(id)
 <script>
 
     $(document).ready( function () {
-
+            var check_for_admin = "{{$check_for_admin}}"
             $('.edit-btn-blogger').click(function(event) {
                 event.preventDefault();
                 $('#blogger_insert').val("0");
@@ -527,10 +546,19 @@ function deleteItem(id)
                     name:$('#blogger_name').val(),
                     email:$('#blogger_email').val()
                 };
-                var url = `/api/blogger`;
+                if(check_for_admin){
+                    var url = `/api/admin/blogger`;
+                }else{
+                    var url = `/api/blogger`;
+                }
+                
                 var method= `POST`
                 if($('#blogger_insert').val().localeCompare("0") == 0) {
-                    url = `/api/blogger/${$('#blogger_wid').val()}`;
+                    if(check_for_admin){
+                        url = `/api/admin/blogger/${$('#blogger_wid').val()}`;
+                    }else{
+                        url = `/api/blogger/${$('#blogger_wid').val()}`;
+                    }
                     method= `PATCH`
                 }
     
@@ -627,14 +655,22 @@ function deleteItem(id)
     function deleteblogger(id)
         {
             event.preventDefault();
+            var url;
+            var check_for_admin = "{{$check_for_admin}}" 
+            if (check_for_admin){
+                url='/api/admin/blogger/'+id
+            } else {
+                url='/api/blogger/'+id
+            }
             $.confirm({
                 title: 'Caution!',
                 type:   'red',
                 content: 'Do you want to delete this ?',
                 buttons: {
                 Yes: function () {
+
                     return $.ajax({
-                    url:'/api/blogger/'+id,
+                    url:url,
                     method:"Delete",
                     // dataType:'JSON', contentType: false, cache: false, processData: false,
                 })

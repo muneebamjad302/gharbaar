@@ -18,11 +18,13 @@ use App\Http\Controllers\Blog\BlogController;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/admin/login', function () {
-    return view('admin.login');
-});
-Route::get('/blogger/login', function () {
-    return view('blogger.login');
-});
+
+// Route::get('/admin/login', function () {
+//     return view('admin.login');
+// });
+// Route::get('/blogger/login', function () {
+//     return view('blogger.login');
+// });
+
 Route::get('/blogs/all',[BlogController::class, 'index']);
 Route::get('/blog/{id}/detail',[BlogController::class, 'blogDetail']);

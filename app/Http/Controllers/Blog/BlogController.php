@@ -44,8 +44,8 @@ class BlogController extends Controller
             'blog_description'=>'required',
         ]);
         $blog = new Blog;
-        $blog->title       = $request->name;
-        $blog->description = $request->email;
+        $blog->title       = $request->blog_title;
+        $blog->description = $request->blog_description;
         $blog->blogger_id  = auth()->guard('blogger')->user()->id ;
         $blog->save();
         return response()->json([
@@ -127,7 +127,7 @@ class BlogController extends Controller
      */
     public function destroy(Blogger $blogger)
     {
-        // $blogger->blogs->delete();
+        $blogger->blogs()->delete();
         $blogger->delete();
         return response()->json([
             'successd'=>true,

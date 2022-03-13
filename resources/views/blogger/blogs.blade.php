@@ -40,8 +40,7 @@
 <script>
 
 $(document).ready( function () {
-  
-    
+    $('#blogs_div').DataTable();
 })
 </script>
 
