@@ -19,6 +19,7 @@ class AdminsTableDataSeeder extends Seeder
 	    	Admin::create([
 	            'name' => str::random(8),
 	            'email' => str::random(12).'@mail.com',
+	            'is_super' => rand(0, 1),
 	            'password' => bcrypt('password')
 	        ]);
     	}
